@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progresso - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* COPIE E COLE AQUI TODO O CONTEÚDO DO SEU BLOCO <style> DA dashboard.html */
+        :root {
+            /* Cores para o tema escuro - Consistente em todo o site */
+            --dark-bg: #1a1a1a; /* Fundo principal muito escuro */
+            --dark-card-bg: #2b2b2b; /* Fundo dos cards e sidebar */
+            --dark-text-color: #e0e0e0; /* Cor de texto padrão clara (quase branca) */
+            --dark-muted-text: #b0b0b0; /* Texto muted mais claro */
+            --dark-border-color: #444444; /* Bordas mais escuras */
+            --dark-shadow-color: rgba(0,0,0,0.5); /* Sombra mais intensa */
+            --highlight-yellow: #ffc107; /* Amarelo de destaque */
+            --highlight-green: #28a745; /* Verde para checks */
+            --highlight-red: #dc3545; /* Vermelho para X */
+            --sidebar-width: 250px; /* Largura da sidebar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex; /* Para layout de sidebar e conteúdo */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0; /* Não permite que a sidebar encolha */
+            transition: transform 0.3s ease-in-out; /* Animação de esconder/mostrar */
+            position: fixed; /* Fixa a sidebar na tela */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030; /* Acima do conteúdo principal, mas abaixo do navbar toggle */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Esconder sidebar em mobile por padrão */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important; /* Em mobile, conteúdo não tem margem */
+            }
+            .navbar-toggler-sidebar {
+                display: block !important; /* Mostra o botão de toggle da sidebar */
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1040; /* Acima da sidebar */
+                color: var(--dark-text-color);
+                border: 1px solid var(--dark-border-color);
+                background-color: var(--dark-card-bg);
+            }
+        }
+
+        /* Overlay para mobile quando sidebar está aberta */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1029; /* Abaixo da sidebar */
+        }
+        .sidebar.show + .overlay {
+            display: block;
+        }
+
+
+        .sidebar .navbar-brand-app {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .navbar-brand-app img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link {
+            color: var(--dark-text-color);
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--highlight-yellow);
+            color: #212529; /* Texto escuro no link ativo */
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .logout-link {
+            margin-top: auto; /* Empurra o logout para o final da sidebar */
+            border-top: 1px solid var(--dark-border-color);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            margin-left: var(--sidebar-width); /* Espaço para a sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0; /* Em mobile, não há margem fixa */
+            }
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+        .app-card { /* Renomeado de dashboard-card para ser mais genérico para todas as páginas do app */
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+        }
+        .app-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .progress-chart-placeholder {
+            background-color: #3b3b3b;
+            height: 250px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-muted-text);
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--dark-border-color);
+        }
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+        .metric-item strong {
+            color: white;
+            font-size: 1.1rem;
+        }
+        .metric-item span {
+            color: var(--highlight-yellow);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="dashboard.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="dashboard.html">
+                <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+            <a class="nav-link" href="perfil.html">
+                <i class="bi bi-person-fill"></i> Meu Perfil
+            </a>
+            <a class="nav-link" href="treinos.html">
+                <i class="bi bi-lightning-fill"></i> Meus Treinos
+            </a>
+            <a class="nav-link active" aria-current="page" href="progresso.html">
+                <i class="bi bi-clipboard-data-fill"></i> Progresso
+            </a>
+            <a class="nav-link" href="nutricao.html">
+                <i class="bi bi-egg-fill"></i> Nutrição
+            </a>
+            <a class="nav-link" href="notificacoes.html">
+                <i class="bi bi-bell-fill"></i> Notificações
+            </a>
+            <a class="nav-link" href="configuracoes.html">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content">
+        <h1 class="mb-4 fw-bold">Meu Progresso</h1>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="app-card">
+                    <h5>Gráfico de Peso</h5>
+                    <div class="progress-chart-placeholder">
+                        Gráfico de Peso (Requer biblioteca de gráficos)
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="app-card">
+                    <h5>Gráfico de Treinos Completados</h5>
+                    <div class="progress-chart-placeholder">
+                        Gráfico de Treinos (Requer biblioteca de gráficos)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h5>Métricas Chave</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="metric-item">
+                        <strong>Peso Atual:</strong> <span>70 kg</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Peso Inicial:</strong> <span>72 kg</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Meta de Peso:</strong> <span>68 kg</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-item">
+                        <strong>IMC Atual:</strong> <span>22.8</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Treinos Totais:</strong> <span>45</span>
+                    </div>
+                    <div class="metric-item">
+                        <strong>Sessões de Cardio:</strong> <span>20</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h5>Progresso de Força (Cargas)</h5>
+            <p class="text-muted">Acompanhe o aumento de carga nos seus exercícios principais.</p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div>
+                        <strong>Supino Reto:</strong><br>
+                        <small class="text-muted">Última Carga: 60kg (3x10)</small>
+                    </div>
+                    <span class="text-success">↑ 5kg desde o início</span>
+                </li>
+                <li class="list-group-item">
+                    <div>
+                        <strong>Agachamento Livre:</strong><br>
+                        <small class="text-muted">Última Carga: 80kg (3x8)</small>
+                    </div>
+                    <span class="text-success">↑ 10kg desde o início</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
