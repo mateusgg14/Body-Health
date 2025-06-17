@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrição - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* COPIE E COLE AQUI TODO O CONTEÚDO DO SEU BLOCO <style> DA dashboard.html */
+        :root {
+            /* Cores para o tema escuro - Consistente em todo o site */
+            --dark-bg: #1a1a1a; /* Fundo principal muito escuro */
+            --dark-card-bg: #2b2b2b; /* Fundo dos cards e sidebar */
+            --dark-text-color: #e0e0e0; /* Cor de texto padrão clara (quase branca) */
+            --dark-muted-text: #b0b0b0; /* Texto muted mais claro */
+            --dark-border-color: #444444; /* Bordas mais escuras */
+            --dark-shadow-color: rgba(0,0,0,0.5); /* Sombra mais intensa */
+            --highlight-yellow: #ffc107; /* Amarelo de destaque */
+            --highlight-green: #28a745; /* Verde para checks */
+            --highlight-red: #dc3545; /* Vermelho para X */
+            --sidebar-width: 250px; /* Largura da sidebar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex; /* Para layout de sidebar e conteúdo */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0; /* Não permite que a sidebar encolha */
+            transition: transform 0.3s ease-in-out; /* Animação de esconder/mostrar */
+            position: fixed; /* Fixa a sidebar na tela */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030; /* Acima do conteúdo principal, mas abaixo do navbar toggle */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Esconder sidebar em mobile por padrão */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important; /* Em mobile, conteúdo não tem margem */
+            }
+            .navbar-toggler-sidebar {
+                display: block !important; /* Mostra o botão de toggle da sidebar */
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1040; /* Acima da sidebar */
+                color: var(--dark-text-color);
+                border: 1px solid var(--dark-border-color);
+                background-color: var(--dark-card-bg);
+            }
+        }
+
+        /* Overlay para mobile quando sidebar está aberta */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1029; /* Abaixo da sidebar */
+        }
+        .sidebar.show + .overlay {
+            display: block;
+        }
+
+
+        .sidebar .navbar-brand-app {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .navbar-brand-app img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link {
+            color: var(--dark-text-color);
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--highlight-yellow);
+            color: #212529; /* Texto escuro no link ativo */
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .logout-link {
+            margin-top: auto; /* Empurra o logout para o final da sidebar */
+            border-top: 1px solid var(--dark-border-color);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            margin-left: var(--sidebar-width); /* Espaço para a sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0; /* Em mobile, não há margem fixa */
+            }
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+        .app-card { /* Renomeado de dashboard-card para ser mais genérico para todas as páginas do app */
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+        }
+        .app-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--dark-border-color);
+        }
+        .meal-item:last-child {
+            border-bottom: none;
+        }
+        .meal-item strong {
+            color: white;
+            font-size: 1.1rem;
+        }
+        .meal-item .calories {
+            color: var(--highlight-yellow);
+            font-weight: bold;
+        }
+        .calorie-summary-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #3b3b3b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            border: 3px solid var(--dark-border-color);
+            text-align: center;
+        }
+        .calorie-summary-circle .remaining {
+            font-size: 2.5rem;
+            color: var(--highlight-green);
+        }
+        .calorie-summary-circle .total {
+            font-size: 1rem;
+            color: var(--dark-muted-text);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="dashboard.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="dashboard.html">
+                <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+            <a class="nav-link" href="perfil.html">
+                <i class="bi bi-person-fill"></i> Meu Perfil
+            </a>
+            <a class="nav-link" href="treinos.html">
+                <i class="bi bi-lightning-fill"></i> Meus Treinos
+            </a>
+            <a class="nav-link" href="progresso.html">
+                <i class="bi bi-clipboard-data-fill"></i> Progresso
+            </a>
+            <a class="nav-link active" aria-current="page" href="nutricao.html">
+                <i class="bi bi-egg-fill"></i> Nutrição
+            </a>
+            <a class="nav-link" href="notificacoes.html">
+                <i class="bi bi-bell-fill"></i> Notificações
+            </a>
+            <a class="nav-link" href="configuracoes.html">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content">
+        <h1 class="mb-4 fw-bold">Nutrição</h1>
+
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="app-card text-center">
+                    <h5>Calorias Diárias</h5>
+                    <div class="calorie-summary-circle">
+                        <span class="remaining">500</span>
+                        <span class="text-muted">Calorias restantes</span>
+                        <span class="total">de 2000 kcal</span>
+                    </div>
+                    <p class="text-muted mt-3">Sua meta diária de calorias é de 2000 kcal.</p>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="app-card">
+                    <h5>Resumo de Macronutrientes (Hoje)</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="meal-item">
+                            <strong>Carboidratos:</strong> <span>150g / 250g</span>
+                        </li>
+                        <li class="meal-item">
+                            <strong>Proteínas:</strong> <span>80g / 120g</span>
+                        </li>
+                        <li class="meal-item">
+                            <strong>Gorduras:</strong> <span>40g / 60g</span>
+                        </li>
+                    </ul>
+                    <a href="#" class="btn btn-app mt-3">Ver detalhes</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h5>Diário Alimentar de Hoje</h5>
+            <ul class="list-group list-group-flush">
+                <li class="meal-item">
+                    <div>
+                        <strong>Café da Manhã:</strong><br>
+                        <small class="text-muted">Ovos mexidos, pão integral, café</small>
+                    </div>
+                    <span class="calories">350 kcal</span>
+                </li>
+                <li class="meal-item">
+                    <div>
+                        <strong>Almoço:</strong><br>
+                        <small class="text-muted">Frango grelhado, arroz, salada</small>
+                    </div>
+                    <span class="calories">550 kcal</span>
+                </li>
+                <li class="meal-item">
+                    <div>
+                        <strong>Lanche da Tarde:</strong><br>
+                        <small class="text-muted">Iogurte com frutas</small>
+                    </div>
+                    <span class="calories">150 kcal</span>
+                </li>
+            </ul>
+            <div class="text-end mt-3">
+                <button class="btn btn-app"><i class="bi bi-plus-circle-fill me-2"></i> Adicionar Refeição</button>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h5>Planos Alimentares</h5>
+            <div class="alert alert-info bg-dark-card-bg border-0 text-muted" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i> Você ainda não tem um plano alimentar. Contrate um nutricionista ou plano Premium para ter acesso!
+            </div>
+            <div class="text-end mt-3">
+                 <a href="planos.html" class="btn btn-app">Ver Planos de Assinatura</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

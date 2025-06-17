@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Usuários - Administrador - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* COPIE E COLE AQUI TODO O CONTEÚDO DO SEU BLOCO <style> DA personal_alunos.html (ou a mais recente de nutri) */
+        :root {
+            /* Cores para o tema escuro - Consistente em todo o site */
+            --dark-bg: #1a1a1a; /* Fundo principal muito escuro */
+            --dark-card-bg: #2b2b2b; /* Fundo dos cards e sidebar */
+            --dark-text-color: #e0e0e0; /* Cor de texto padrão clara (quase branca) */
+            --dark-muted-text: #b0b0b0; /* Texto muted mais claro */
+            --dark-border-color: #444444; /* Bordas mais escuras */
+            --dark-shadow-color: rgba(0,0,0,0.5); /* Sombra mais intensa */
+            --highlight-yellow: #ffc107; /* Amarelo de destaque */
+            --highlight-green: #28a745; /* Verde para checks */
+            --highlight-red: #dc3545; /* Vermelho para X */
+            --sidebar-width: 250px; /* Largura da sidebar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex; /* Para layout de sidebar e conteúdo */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0; /* Não permite que a sidebar encolha */
+            transition: transform 0.3s ease-in-out; /* Animação de esconder/mostrar */
+            position: fixed; /* Fixa a sidebar na tela */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030; /* Acima do conteúdo principal, mas abaixo do navbar toggle */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Esconder sidebar em mobile por padrão */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important; /* Em mobile, conteúdo não tem margem */
+            }
+            .navbar-toggler-sidebar {
+                display: block !important; /* Mostra o botão de toggle da sidebar */
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1040; /* Acima da sidebar */
+                color: var(--dark-text-color);
+                border: 1px solid var(--dark-border-color);
+                background-color: var(--dark-card-bg);
+            }
+        }
+
+        /* Overlay para mobile quando sidebar está aberta */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1029; /* Abaixo da sidebar */
+        }
+        .sidebar.show + .overlay {
+            display: block;
+        }
+
+
+        .sidebar .navbar-brand-app {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .navbar-brand-app img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link {
+            color: var(--dark-text-color);
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--highlight-yellow);
+            color: #212529; /* Texto escuro no link ativo */
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .logout-link {
+            margin-top: auto; /* Empurra o logout para o final da sidebar */
+            border-top: 1px solid var(--dark-border-color);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            margin-left: var(--sidebar-width); /* Espaço para a sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0; /* Em mobile, não há margem fixa */
+            }
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+        .app-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+        }
+        .app-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .btn-app {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-app:hover {
+            background-color: #e6b000;
+            color: #212529;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .table-app {
+            color: var(--dark-text-color);
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            overflow: hidden; /* Garante que os cantos da tabela sejam arredondados */
+        }
+        .table-app thead {
+            background-color: #3a3a3a;
+            color: var(--highlight-yellow);
+        }
+        .table-app th, .table-app td {
+            border-color: var(--dark-border-color);
+            vertical-align: middle;
+            padding: 15px;
+        }
+        .table-app tbody tr:hover {
+            background-color: #353535;
+        }
+        .btn-action {
+            margin-right: 5px;
+        }
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+        .search-input, .form-select {
+            background-color: #3b3b3b;
+            color: var(--dark-text-color);
+            border: 1px solid var(--dark-border-color);
+        }
+        .search-input::placeholder, .form-select option {
+            color: var(--dark-muted-text);
+        }
+        .search-input:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,193,7,0.25);
+            border-color: var(--highlight-yellow);
+        }
+        .badge-admin {
+            background-color: #0d6efd; /* Bootstrap blue */
+        }
+        .badge-personal {
+            background-color: #28a745; /* Bootstrap green */
+        }
+        .badge-nutri {
+            background-color: #17a2b8; /* Bootstrap info */
+        }
+        .badge-paciente {
+            background-color: #ffc107; /* Highlight yellow */
+            color: #212529; /* Dark text for contrast */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="admin_dashboard.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Administrador
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="admin_dashboard.html">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a class="nav-link active" aria-current="page" href="admin_usuarios.html">
+                <i class="bi bi-people-fill"></i> Gerenciar Usuários
+            </a>
+            <a class="nav-link" href="admin_conteudo.html">
+                <i class="bi bi-file-earmark-text-fill"></i> Gerenciar Conteúdo
+            </a>
+            <a class="nav-link" href="admin_relatorios.html">
+                <i class="bi bi-bar-chart-line-fill"></i> Relatórios
+            </a>
+            <a class="nav-link" href="admin_configuracoes.html">
+                <i class="bi bi-gear-fill"></i> Configurações do Sistema
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content">
+        <h1 class="mb-4 fw-bold">Gerenciar Usuários</h1>
+
+        <div class="app-card">
+            <h5>Lista de Usuários Cadastrados</h5>
+            <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <input type="text" class="form-control search-input me-2" placeholder="Buscar por nome ou e-mail...">
+                    <select class="form-select w-auto">
+                        <option selected>Todos os tipos</option>
+                        <option value="paciente">Paciente</option>
+                        <option value="personal">Personal Trainer</option>
+                        <option value="nutricionista">Nutricionista</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <button class="btn btn-app mt-2 mt-md-0">
+                    <i class="bi bi-person-plus-fill me-2"></i> Adicionar Novo Usuário
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-app table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Tipo de Perfil</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <img src="https://via.placeholder.com/40/ffc107/FFFFFF?text=AD" alt="Admin Master" class="profile-image">
+                                Admin Master
+                            </td>
+                            <td>admin@bodyhealth.com</td>
+                            <td><span class="badge badge-admin">Administrador</span></td>
+                            <td><span class="badge bg-success">Ativo</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info btn-action"><i class="bi bi-pencil"></i> Editar</button>
+                                <button class="btn btn-sm btn-outline-secondary btn-action"><i class="bi bi-lock"></i> Bloquear</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="https://via.placeholder.com/40/28a745/FFFFFF?text=JL" alt="João Lima" class="profile-image">
+                                João Lima
+                            </td>
+                            <td>joao.personal@email.com</td>
+                            <td><span class="badge badge-personal">Personal Trainer</span></td>
+                            <td><span class="badge bg-success">Ativo</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info btn-action"><i class="bi bi-pencil"></i> Editar</button>
+                                <button class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-person-x"></i> Remover</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="https://via.placeholder.com/40/17a2b8/FFFFFF?text=MA" alt="Mariana Almeida" class="profile-image">
+                                Mariana Almeida
+                            </td>
+                            <td>mariana.nutri@email.com</td>
+                            <td><span class="badge badge-nutri">Nutricionista</span></td>
+                            <td><span class="badge bg-success">Ativo</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info btn-action"><i class="bi bi-pencil"></i> Editar</button>
+                                <button class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-person-x"></i> Remover</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="https://via.placeholder.com/40/ffc107/FFFFFF?text=RL" alt="Roberto Lopes" class="profile-image">
+                                Roberto Lopes
+                            </td>
+                            <td>roberto.lopes@email.com</td>
+                            <td><span class="badge badge-paciente">Paciente</span></td>
+                            <td><span class="badge bg-warning text-dark">Pendente</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-success btn-action"><i class="bi bi-check-lg"></i> Aprovar</button>
+                                <button class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-x-lg"></i> Rejeitar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <img src="https://via.placeholder.com/40/ffc107/FFFFFF?text=PS" alt="Paula Souza" class="profile-image">
+                                Paula Souza
+                            </td>
+                            <td>paula.souza@email.com</td>
+                            <td><span class="badge badge-paciente">Paciente</span></td>
+                            <td><span class="badge bg-success">Ativo</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info btn-action"><i class="bi bi-pencil"></i> Editar</button>
+                                <button class="btn btn-sm btn-outline-danger btn-action"><i class="bi bi-person-x"></i> Remover</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <nav aria-label="Paginação de usuários" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Próximo</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

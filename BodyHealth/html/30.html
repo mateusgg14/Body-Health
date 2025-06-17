@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Artigos - Body Health App (Profissional)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* COPIE E COLE AQUI TODO O CONTEÚDO DO SEU BLOCO <style> do `artigos_usuario.html` ou de um dos arquivos admin para consistência */
+        :root {
+            --dark-bg: #1a1a1a;
+            --dark-card-bg: #2b2b2b;
+            --dark-text-color: #e0e0e0;
+            --dark-muted-text: #b0b0b0;
+            --dark-border-color: #444444;
+            --dark-shadow-color: rgba(0,0,0,0.5);
+            --highlight-yellow: #ffc107; /* Amarelo principal */
+            --highlight-yellow-dark: #e6b000; /* Amarelo mais escuro para hover */
+            --highlight-green: #28a745;
+            --highlight-red: #dc3545;
+            --star-color-filled: #ffc107; /* Cor da estrela preenchida */
+            --star-color-empty: #6c757d; /* Cor da estrela vazia */
+            --sidebar-width: 250px; /* Largura da sidebar, se usar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding-top: 70px; /* Espaço para o fixed navbar, se não usar sidebar */
+            display: flex; /* Se usar sidebar */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Navbar (se não usar sidebar principal para profissionais) */
+        .navbar {
+            background-color: var(--dark-card-bg);
+            box-shadow: 0 2px 10px var(--dark-shadow-color);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: var(--dark-text-color) !important;
+            margin-right: 15px;
+            transition: color 0.2s ease;
+        }
+        .nav-link:hover {
+            color: var(--highlight-yellow) !important;
+        }
+        .btn-app, .btn-app-outline {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-app:hover {
+            background-color: var(--highlight-yellow-dark);
+            color: #212529;
+        }
+        .btn-app-outline {
+            background-color: transparent;
+            color: var(--highlight-yellow);
+            border: 1px solid var(--highlight-yellow);
+        }
+        .btn-app-outline:hover {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+        }
+        .search-input {
+            background-color: #3b3b3b;
+            color: var(--dark-text-color);
+            border: 1px solid var(--dark-border-color);
+        }
+        .search-input::placeholder {
+            color: var(--dark-muted-text);
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,193,7,0.25);
+            border-color: var(--highlight-yellow);
+        }
+
+        /* Container Principal */
+        .container-main {
+            flex-grow: 1; /* Ocupa o restante do espaço se tiver sidebar */
+            padding: 30px 15px;
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+
+        /* Card de Artigo */
+        .article-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+        }
+        .article-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .article-card .card-body {
+            padding: 20px;
+        }
+        .article-card .card-title {
+            color: var(--highlight-yellow);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .article-card .card-text {
+            color: var(--dark-muted-text);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .article-meta {
+            font-size: 0.85rem;
+            color: var(--dark-muted-text);
+            margin-bottom: 10px;
+        }
+        .article-meta i {
+            margin-right: 5px;
+        }
+        .article-meta .author-link {
+            color: var(--highlight-yellow);
+            text-decoration: none;
+        }
+        .article-meta .author-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Sistema de Avaliação (Estrelas) */
+        .rating-stars {
+            font-size: 1.5rem;
+            color: var(--star-color-empty);
+            cursor: default; /* Não clicável para o profissional */
+        }
+        .rating-stars .bi-star-fill {
+            color: var(--star-color-filled);
+        }
+        .rating-stars i {
+            margin-right: 2px;
+        }
+        .current-rating {
+            font-size: 1rem;
+            color: var(--dark-text-color);
+            margin-left: 10px;
+        }
+        .badge-status-aprovado { background-color: var(--highlight-green); color: white; }
+        .badge-status-pendente { background-color: var(--highlight-yellow); color: #212529; }
+        .badge-status-rejeitado { background-color: var(--highlight-red); color: white; }
+
+        /* Filtros e Paginação */
+        .form-select {
+            background-color: #3b3b3b;
+            color: var(--dark-text-color);
+            border: 1px solid var(--dark-border-color);
+        }
+        .form-select option {
+            background-color: #3b3b3b; /* Fundo para as opções */
+            color: var(--dark-text-color);
+        }
+        .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,193,7,0.25);
+            border-color: var(--highlight-yellow);
+        }
+        .pagination .page-link {
+            background-color: var(--dark-card-bg);
+            border-color: var(--dark-border-color);
+            color: var(--highlight-yellow);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .pagination .page-link:hover {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border-color: var(--highlight-yellow);
+        }
+        .pagination .page-item.active .page-link {
+            background-color: var(--highlight-yellow);
+            border-color: var(--highlight-yellow);
+            color: #212529;
+        }
+        .pagination .page-item.disabled .page-link {
+            color: var(--dark-muted-text);
+            background-color: var(--dark-card-bg);
+            border-color: var(--dark-border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health App
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard_profissional.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="meus_alunos_pacientes.html">Meus Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="artigos_profissionais.html">Meus Artigos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="mensagens.html">Mensagens</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="agenda.html">Agenda</a>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2 search-input" type="search" placeholder="Buscar artigos..." aria-label="Search">
+                    <button class="btn btn-app-outline" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://via.placeholder.com/30/28a745/FFFFFF?text=P" alt="Perfil" class="rounded-circle me-1"> Profissional
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="perfil_profissional.html">Meu Perfil</a></li>
+                            <li><a class="dropdown-item" href="configuracoes_profissional.html">Configurações</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="login.html">Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <h1 class="mb-4 fw-bold">Meus Artigos Publicados</h1>
+
+        <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <select class="form-select w-auto d-inline-block me-2">
+                    <option selected>Todos os Status</option>
+                    <option value="aprovado">Aprovado</option>
+                    <option value="pendente">Pendente de Revisão</option>
+                    <option value="rejeitado">Rejeitado</option>
+                </select>
+                <select class="form-select w-auto d-inline-block">
+                    <option selected>Mais Recentes</option>
+                    <option value="mais_avaliados">Melhor Avaliados</option>
+                    <option value="mais_lidos">Mais Lidos</option>
+                </select>
+            </div>
+            <a href="publicar_artigo.html" class="btn btn-app mt-2 mt-md-0">
+                <i class="bi bi-plus-circle me-2"></i> Publicar Novo Artigo
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4">
+                <div class="article-card">
+                    <img src="https://via.placeholder.com/400x200/ffc107/212529?text=Dieta+Balanceada" alt="Imagem do Artigo">
+                    <div class="card-body">
+                        <h5 class="card-title">Os 10 Mitos da Dieta Balanceada</h5>
+                        <p class="article-meta">
+                            <span class="badge rounded-pill badge-status-aprovado mb-2">Aprovado</span>
+                            <span class="ms-3"><i class="bi bi-calendar-event-fill"></i> 10/06/2025</span>
+                        </p>
+                        <p class="card-text">Descubra a verdade por trás dos maiores mitos sobre alimentação saudável e como você pode ter uma dieta equilibrada sem abrir mão do sabor...</p>
+                        <hr class="text-muted my-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="rating-stars" data-current-rating="4">
+                                <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i>
+                                <span class="current-rating">(4.2 de 5 - 120 avaliações)</span>
+                            </div>
+                            <div>
+                                <a href="editar_artigo.html?id=1" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="article-card">
+                    <img src="https://via.placeholder.com/400x200/28a745/FFFFFF?text=Treino+Funcional" alt="Imagem do Artigo">
+                    <div class="card-body">
+                        <h5 class="card-title">Treino Funcional em Casa: Guia Completo</h5>
+                        <p class="article-meta">
+                            <span class="badge rounded-pill badge-status-pendente mb-2">Pendente de Revisão</span>
+                            <span class="ms-3"><i class="bi bi-calendar-event-fill"></i> 12/06/2025</span>
+                        </p>
+                        <p class="card-text">Aprenda a montar seu treino funcional sem sair de casa, com exercícios que utilizam apenas o peso do corpo e materiais simples...</p>
+                        <hr class="text-muted my-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Aguardando aprovação...</span>
+                            <div>
+                                <a href="editar_artigo.html?id=2" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="article-card">
+                    <img src="https://via.placeholder.com/400x200/dc3545/FFFFFF?text=Conteudo+Rejeitado" alt="Imagem do Artigo">
+                    <div class="card-body">
+                        <h5 class="card-title">5 Erros Comuns na Musculação que Você Deve Evitar</h5>
+                        <p class="article-meta">
+                            <span class="badge rounded-pill badge-status-rejeitado mb-2">Rejeitado</span>
+                            <span class="ms-3"><i class="bi bi-calendar-event-fill"></i> 01/06/2025</span>
+                        </p>
+                        <p class="card-text">Este artigo foi rejeitado. Razão: Conteúdo não alinhado com as diretrizes da plataforma (informações desatualizadas).</p>
+                        <hr class="text-muted my-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-danger">Ver Motivo da Rejeição</span>
+                            <div>
+                                <a href="editar_artigo.html?id=3" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil-square"></i> Editar</a>
+                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Excluir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        <nav aria-label="Paginação de Artigos" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Próximo</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
