@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artigos - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Estilos Gerais para o Layout e Cores (Tema Escuro) */
+        :root {
+            --dark-bg: #1a1a1a;
+            --dark-card-bg: #2b2b2b;
+            --dark-text-color: #e0e0e0;
+            --dark-muted-text: #b0b0b0;
+            --dark-border-color: #444444;
+            --dark-shadow-color: rgba(0,0,0,0.5);
+            --highlight-yellow: #ffc107; /* Amarelo principal */
+            --highlight-yellow-dark: #e6b000; /* Amarelo mais escuro para hover */
+            --highlight-green: #28a745;
+            --highlight-red: #dc3545;
+            --star-color-filled: #ffc107; /* Cor da estrela preenchida */
+            --star-color-empty: #6c757d; /* Cor da estrela vazia */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding-top: 70px; /* Espaço para o fixed navbar */
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: var(--dark-card-bg);
+            box-shadow: 0 2px 10px var(--dark-shadow-color);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+        .nav-link {
+            color: var(--dark-text-color) !important;
+            margin-right: 15px;
+            transition: color 0.2s ease;
+        }
+        .nav-link:hover {
+            color: var(--highlight-yellow) !important;
+        }
+        .btn-app-outline {
+            color: var(--highlight-yellow);
+            border-color: var(--highlight-yellow);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .btn-app-outline:hover {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+        }
+        .search-input {
+            background-color: #3b3b3b;
+            color: var(--dark-text-color);
+            border: 1px solid var(--dark-border-color);
+        }
+        .search-input::placeholder {
+            color: var(--dark-muted-text);
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,193,7,0.25);
+            border-color: var(--highlight-yellow);
+        }
+
+        /* Container Principal */
+        .container-main {
+            padding: 30px 15px;
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+
+        /* Card de Artigo */
+        .article-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+        }
+        .article-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .article-card .card-body {
+            padding: 20px;
+        }
+        .article-card .card-title {
+            color: var(--highlight-yellow);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .article-card .card-text {
+            color: var(--dark-muted-text);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .article-meta {
+            font-size: 0.85rem;
+            color: var(--dark-muted-text);
+            margin-bottom: 10px;
+        }
+        .article-meta i {
+            margin-right: 5px;
+        }
+        .article-meta .author-link {
+            color: var(--highlight-yellow);
+            text-decoration: none;
+        }
+        .article-meta .author-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Sistema de Avaliação (Estrelas) */
+        .rating-stars {
+            font-size: 1.5rem;
+            color: var(--star-color-empty);
+            cursor: pointer;
+        }
+        .rating-stars .bi-star-fill {
+            color: var(--star-color-filled);
+        }
+        .rating-stars i {
+            margin-right: 2px;
+        }
+        .current-rating {
+            font-size: 1rem;
+            color: var(--dark-text-color);
+            margin-left: 10px;
+        }
+        .rating-input {
+            display: none; /* Esconder os radio buttons */
+        }
+        .star-label {
+            cursor: pointer;
+        }
+
+        /* Filtros e Paginação */
+        .form-select {
+            background-color: #3b3b3b;
+            color: var(--dark-text-color);
+            border: 1px solid var(--dark-border-color);
+        }
+        .form-select option {
+            background-color: #3b3b3b; /* Fundo para as opções */
+            color: var(--dark-text-color);
+        }
+        .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(255,193,7,0.25);
+            border-color: var(--highlight-yellow);
+        }
+        .pagination .page-link {
+            background-color: var(--dark-card-bg);
+            border-color: var(--dark-border-color);
+            color: var(--highlight-yellow);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .pagination .page-link:hover {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border-color: var(--highlight-yellow);
+        }
+        .pagination .page-item.active .page-link {
+            background-color: var(--highlight-yellow);
+            border-color: var(--highlight-yellow);
+            color: #212529;
+        }
+        .pagination .page-item.disabled .page-link {
+            color: var(--dark-muted-text);
+            background-color: var(--dark-card-bg);
+            border-color: var(--dark-border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health App
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard_usuario.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="meus_treinos.html">Meus Treinos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="minhas_dietas.html">Minhas Dietas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="artigos_usuario.html">Artigos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="mensagens.html">Mensagens</a>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2 search-input" type="search" placeholder="Buscar artigos..." aria-label="Search">
+                    <button class="btn btn-app-outline" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="https://via.placeholder.com/30/ffc107/FFFFFF?text=P" alt="Perfil" class="rounded-circle me-1"> Perfil
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="perfil_usuario.html">Meu Perfil</a></li>
+                            <li><a class="dropdown-item" href="configuracoes_usuario.html">Configurações</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="login.html">Sair</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <h1 class="mb-4 fw-bold">Artigos e Conteúdos</h1>
+
+        <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <select class="form-select w-auto d-inline-block me-2">
+                    <option selected>Todas as Categorias</option>
+                    <option value="nutricao">Nutrição</option>
+                    <option value="treino">Treino</option>
+                    <option value="bem-estar">Bem-Estar</option>
+                    <option value="saude">Saúde</option>
+                </select>
+                <select class="form-select w-auto d-inline-block">
+                    <option selected>Mais Recentes</option>
+                    <option value="mais_avaliados">Melhor Avaliados</option>
+                    <option value="mais_lidos">Mais Lidos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4">
+                <div class="article-card">
+                    <img src="https://via.placeholder.com/400x200/ffc107/212529?text=Dieta+Balanceada" alt="Imagem do Artigo">
+                    <div class="card-body">
+                        <h5 class="card-title">Os 10 Mitos da Dieta Balanceada</h5>
+                        <p class="article-meta">
+                            <i class="bi bi-person-fill"></i> Por <a href="#" class="author-link">Dr. Ana Nutricionista</a>
+                            <span class="ms-3"><i class="bi bi-calendar-event-fill"></i> 10/06/2025</span>
+                        </p>
+                        <p class="card-text">Descubra a verdade por trás dos maiores mitos sobre alimentação saudável e como você pode ter uma dieta equilibrada sem abrir mão do sabor...</p>
+                        <a href="ver_artigo.html?id=1" class="btn btn-sm btn-app-outline">Ler Mais</a>
+                        <hr class="text-muted my-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rating-stars" data-current-rating="4">
+                                <input type="radio" name="rating1" id="star5_1" value="5" class="rating-input"><label for="star5_1" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating1" id="star4_1" value="4" class="rating-input" checked><label for="star4_1" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating1" id="star3_1" value="3" class="rating-input"><label for="star3_1" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating1" id="star2_1" value="2" class="rating-input"><label for="star2_1" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating1" id="star1_1" value="1" class="rating-input"><label for="star1_1" class="bi bi-star-fill star-label"></label>
+                            </div>
+                            <span class="current-rating">(4.2 de 5 - 120 avaliações)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="article-card">
+                    <img src="https://via.placeholder.com/400x200/28a745/FFFFFF?text=Treino+Funcional" alt="Imagem do Artigo">
+                    <div class="card-body">
+                        <h5 class="card-title">Treino Funcional em Casa: Guia Completo</h5>
+                        <p class="article-meta">
+                            <i class="bi bi-person-fill"></i> Por <a href="#" class="author-link">Personal João Silva</a>
+                            <span class="ms-3"><i class="bi bi-calendar-event-fill"></i> 08/06/2025</span>
+                        </p>
+                        <p class="card-text">Aprenda a montar seu treino funcional sem sair de casa, com exercícios que utilizam apenas o peso do corpo e materiais simples...</p>
+                        <a href="ver_artigo.html?id=2" class="btn btn-sm btn-app-outline">Ler Mais</a>
+                        <hr class="text-muted my-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rating-stars" data-current-rating="5">
+                                <input type="radio" name="rating2" id="star5_2" value="5" class="rating-input" checked><label for="star5_2" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating2" id="star4_2" value="4" class="rating-input"><label for="star4_2" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating2" id="star3_2" value="3" class="rating-input"><label for="star3_2" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating2" id="star2_2" value="2" class="rating-input"><label for="star2_2" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating2" id="star1_2" value="1" class="rating-input"><label for="star1_2" class="bi bi-star-fill star-label"></label>
+                            </div>
+                            <span class="current-rating">(4.8 de 5 - 250 avaliações)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="article-card">
+                    <img src="https://via.placeholder.com/400x200/17a2b8/FFFFFF?text=Saude+Mental" alt="Imagem do Artigo">
+                    <div class="card-body">
+                        <h5 class="card-title">Saúde Mental e Exercício Físico: Uma Conexão Essencial</h5>
+                        <p class="article-meta">
+                            <i class="bi bi-person-fill"></i> Por <a href="#" class="author-link">Dra. Clara Psicóloga</a>
+                            <span class="ms-3"><i class="bi bi-calendar-event-fill"></i> 05/06/2025</span>
+                        </p>
+                        <p class="card-text">Explore como a atividade física regular pode ser uma poderosa ferramenta para melhorar o humor, reduzir o estresse e promover o bem-estar mental...</p>
+                        <a href="ver_artigo.html?id=3" class="btn btn-sm btn-app-outline">Ler Mais</a>
+                        <hr class="text-muted my-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rating-stars" data-current-rating="3">
+                                <input type="radio" name="rating3" id="star5_3" value="5" class="rating-input"><label for="star5_3" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating3" id="star4_3" value="4" class="rating-input"><label for="star4_3" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating3" id="star3_3" value="3" class="rating-input" checked><label for="star3_3" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating3" id="star2_3" value="2" class="rating-input"><label for="star2_3" class="bi bi-star-fill star-label"></label>
+                                <input type="radio" name="rating3" id="star1_3" value="1" class="rating-input"><label for="star1_3" class="bi bi-star-fill star-label"></label>
+                            </div>
+                            <span class="current-rating">(3.9 de 5 - 85 avaliações)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        <nav aria-label="Paginação de Artigos" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Próximo</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ratingContainers = document.querySelectorAll('.rating-stars');
+
+            ratingContainers.forEach(container => {
+                const radios = container.querySelectorAll('.rating-input');
+                const labels = container.querySelectorAll('.star-label');
+                const currentRating = parseInt(container.dataset.currentRating); // Pegar a avaliação inicial do HTML
+
+                // Função para atualizar as estrelas visuais
+                function updateStars(rating) {
+                    labels.forEach((label, index) => {
+                        if (5 - index <= rating) { // Invertendo para que 5 seja a primeira estrela (da direita para a esquerda)
+                            label.classList.add('bi-star-fill');
+                            label.classList.remove('bi-star');
+                        } else {
+                            label.classList.add('bi-star');
+                            label.classList.remove('bi-star-fill');
+                        }
+                    });
+                }
+
+                // Inicializa as estrelas com a avaliação atual
+                updateStars(currentRating);
+
+                labels.forEach(label => {
+                    label.addEventListener('click', function(event) {
+                        const clickedRadio = document.getElementById(this.htmlFor);
+                        const newRating = parseInt(clickedRadio.value);
+
+                        // Atualiza visualmente
+                        updateStars(newRating);
+
+                        // Em um projeto real, aqui você enviaria a nova avaliação para o servidor via AJAX/Fetch
+                        console.log(`Artigo avaliado com ${newRating} estrelas.`);
+                        // Você pode adicionar um feedback visual ao usuário, como um "Obrigado por avaliar!"
+                    });
+
+                    // Adiciona comportamento de hover para preencher as estrelas
+                    label.addEventListener('mouseover', function() {
+                        const hoverRating = parseInt(document.getElementById(this.htmlFor).value);
+                        labels.forEach((lbl, idx) => {
+                            if (5 - idx <= hoverRating) {
+                                lbl.classList.add('bi-star-fill');
+                                lbl.classList.remove('bi-star');
+                            } else {
+                                lbl.classList.add('bi-star');
+                                lbl.classList.remove('bi-star-fill');
+                            }
+                        });
+                    });
+
+                    label.addEventListener('mouseout', function() {
+                        // Ao sair, restaura para a avaliação selecionada (ou inicial se nenhuma foi selecionada)
+                        const selectedRating = container.querySelector('input[type="radio"]:checked');
+                        updateStars(selectedRating ? parseInt(selectedRating.value) : currentRating);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

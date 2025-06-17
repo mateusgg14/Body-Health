@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Cores para o tema escuro - Consistente em todo o site */
+            --dark-bg: #1a1a1a; /* Fundo principal muito escuro */
+            --dark-card-bg: #2b2b2b; /* Fundo dos cards e sidebar */
+            --dark-text-color: #e0e0e0; /* Cor de texto padrão clara (quase branca) */
+            --dark-muted-text: #b0b0b0; /* Texto muted mais claro */
+            --dark-border-color: #444444; /* Bordas mais escuras */
+            --dark-shadow-color: rgba(0,0,0,0.5); /* Sombra mais intensa */
+            --highlight-yellow: #ffc107; /* Amarelo de destaque */
+            --highlight-green: #28a745; /* Verde para checks */
+            --highlight-red: #dc3545; /* Vermelho para X */
+            --sidebar-width: 250px; /* Largura da sidebar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex; /* Para layout de sidebar e conteúdo */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0; /* Não permite que a sidebar encolha */
+            transition: transform 0.3s ease-in-out; /* Animação de esconder/mostrar */
+            position: fixed; /* Fixa a sidebar na tela */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030; /* Acima do conteúdo principal, mas abaixo do navbar toggle */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Esconder sidebar em mobile por padrão */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important; /* Em mobile, conteúdo não tem margem */
+            }
+            .navbar-toggler-sidebar {
+                display: block !important; /* Mostra o botão de toggle da sidebar */
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1040; /* Acima da sidebar */
+                color: var(--dark-text-color);
+                border: 1px solid var(--dark-border-color);
+                background-color: var(--dark-card-bg);
+            }
+        }
+
+        /* Overlay para mobile quando sidebar está aberta */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1029; /* Abaixo da sidebar */
+        }
+        .sidebar.show + .overlay {
+            display: block;
+        }
+
+
+        .sidebar .navbar-brand-app {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .navbar-brand-app img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link {
+            color: var(--dark-text-color);
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--highlight-yellow);
+            color: #212529; /* Texto escuro no link ativo */
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .logout-link {
+            margin-top: auto; /* Empurra o logout para o final da sidebar */
+            border-top: 1px solid var(--dark-border-color);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            margin-left: var(--sidebar-width); /* Espaço para a sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0; /* Em mobile, não há margem fixa */
+            }
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+        .dashboard-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+            min-height: 180px; /* Altura mínima para cards */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .dashboard-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(var(--highlight-green) var(--progress), var(--dark-border-color) var(--progress));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            border: 3px solid var(--dark-border-color);
+        }
+        .small-icon-text {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: var(--dark-muted-text);
+        }
+        .small-icon-text i {
+            margin-right: 8px;
+            color: var(--highlight-yellow);
+        }
+        .btn-dashboard {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-dashboard:hover {
+            background-color: #e6b000;
+            color: #212529;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="dashboard.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link active" aria-current="page" href="dashboard.html">
+                <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-person-fill"></i> Meu Perfil
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-lightning-fill"></i> Meus Treinos
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-clipboard-data-fill"></i> Progresso
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-egg-fill"></i> Nutrição
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-bell-fill"></i> Notificações
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content" id="mainContent">
+        <h1 class="mb-4 fw-bold">Olá, [Nome do Usuário]!</h1>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card text-center">
+                    <h5>Progresso Semanal</h5>
+                    <div class="progress-circle" style="--progress: 75%;">
+                        75%
+                    </div>
+                    <p class="mt-3 text-muted">Ótimo trabalho! Você está no caminho certo.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card">
+                    <h5>Treino de Hoje</h5>
+                    <p class="mb-2"><strong>Treino de Força - Membros Superiores</strong></p>
+                    <div class="small-icon-text"><i class="bi bi-clock"></i> 45 minutos</div>
+                    <div class="small-icon-text"><i class="bi bi-bar-chart-line"></i> Nível Intermediário</div>
+                    <div class="small-icon-text"><i class="bi bi-fire"></i> 350 kcal estimadas</div>
+                    <a href="#" class="btn btn-dashboard mt-3">Iniciar Treino</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card">
+                    <h5>Metas Atuais</h5>
+                    <div class="small-icon-text"><i class="bi bi-bullseye"></i> Perder 5kg - Faltam 2kg</div>
+                    <div class="small-icon-text"><i class="bi bi-water"></i> Beber 2L água - 1.5L hoje</div>
+                    <div class="small-icon-text"><i class="bi bi-bicycle"></i> Correr 10km - 7km esta semana</div>
+                    <a href="#" class="btn btn-dashboard mt-3">Ver Metas</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="dashboard-card">
+                    <h5>Últimos Treinos Completados</h5>
+                    <ul class="list-unstyled">
+                        <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+                            <span>Treino de Cardio - HIIT</span>
+                            <span class="text-muted">Ontem, 16:30 <i class="bi bi-check-circle-fill text-success ms-2"></i></span>
+                        </li>
+                        <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+                            <span>Treino de Pernas e Glúteos</span>
+                            <span class="text-muted">Sexta-feira, 08:00 <i class="bi bi-check-circle-fill text-success ms-2"></i></span>
+                        </li>
+                        <li class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-secondary">
+                            <span>Yoga para Flexibilidade</span>
+                            <span class="text-muted">Quarta-feira, 19:00 <i class="bi bi-check-circle-fill text-success ms-2"></i></span>
+                        </li>
+                    </ul>
+                    <a href="#" class="btn btn-dashboard mt-3">Ver Histórico Completo</a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="dashboard-card">
+                    <h5>Próximos Eventos/Desafios</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <strong><i class="bi bi-calendar-check-fill me-2"></i> Desafio 30 Dias de Abdominais</strong>
+                            <p class="text-muted mb-0 ms-4">Começa em 3 dias!</p>
+                        </li>
+                        <li class="mb-2">
+                            <strong><i class="bi bi-chat-dots-fill me-2"></i> Live com Nutricionista "Alimentação Consciente"</strong>
+                            <p class="text-muted mb-0 ms-4">Quarta-feira, 20:00</p>
+                        </li>
+                    </ul>
+                    <a href="#" class="btn btn-dashboard mt-3">Ver Todos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show'); // Toggle do overlay
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            // Para fechar a sidebar se a tela for redimensionada para desktop
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) { // Bootstrap's 'lg' breakpoint
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
