@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Treinos - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Inclua aqui todo o CSS do seu dashboard_gratuito.html para manter a consistência */
+        :root {
+            --dark-bg: #1a1a1a;
+            --dark-card-bg: #2b2b2b;
+            --dark-text-color: #e0e0e0;
+            --dark-muted-text: #b0b0b0;
+            --dark-border-color: #444444;
+            --dark-shadow-color: rgba(0,0,0,0.5);
+            --highlight-yellow: #ffc107;
+            --highlight-green: #28a745;
+            --highlight-red: #dc3545;
+            --sidebar-width: 250px;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0;
+            transition: transform 0.3s ease-in-out;
+            position: fixed;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (max-width: 991.98px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0 !important; }
+            .navbar-toggler-sidebar { display: block !important; position: fixed; top: 15px; left: 15px; z-index: 1040; color: var(--dark-text-color); border: 1px solid var(--dark-border-color); background-color: var(--dark-card-bg); }
+        }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1029; }
+        .sidebar.show + .overlay { display: block; }
+        .sidebar .navbar-brand-app { color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px; text-decoration: none; display: flex; align-items: center; }
+        .sidebar .navbar-brand-app img { height: 40px; margin-right: 10px; }
+        .sidebar .nav-link { color: var(--dark-text-color); padding: 10px 15px; margin-bottom: 5px; border-radius: 5px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: var(--highlight-yellow); color: #212529; }
+        .sidebar .nav-link i { margin-right: 10px; font-size: 1.2rem; }
+        .sidebar .nav-link .badge { margin-left: auto; }
+        .sidebar .logout-link { margin-top: auto; border-top: 1px solid var(--dark-border-color); padding-top: 20px; text-align: center; }
+
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content { margin-left: 0; }
+        }
+
+        h1, h2, h3, h4, h5 { color: var(--dark-text-color); }
+        .dashboard-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .dashboard-card h5 { color: var(--highlight-yellow); margin-bottom: 15px; }
+        .small-icon-text { display: flex; align-items: center; margin-bottom: 8px; color: var(--dark-muted-text); }
+        .small-icon-text i { margin-right: 8px; color: var(--highlight-yellow); }
+        .btn-dashboard {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-dashboard:hover { background-color: #e6b000; color: #212529; }
+
+        .feature-premium-locked {
+            opacity: 0.5; cursor: not-allowed; position: relative; pointer-events: none;
+        }
+        .feature-premium-locked::after {
+            content: "Recurso Premium"; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: bold; color: var(--highlight-yellow); border-radius: 8px;
+            text-align: center; padding: 20px;
+        }
+        .feature-premium-locked .btn, .feature-premium-locked a.btn { display: none; }
+
+        .alert-upgrade {
+            background-color: rgba(255, 193, 7, 0.1); border-color: var(--highlight-yellow);
+            color: var(--highlight-yellow); padding: 15px; border-radius: 8px; margin-bottom: 30px;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+        }
+        .alert-upgrade i { font-size: 1.8rem; margin-right: 15px; }
+        .alert-upgrade p { margin-bottom: 0; }
+        .alert-upgrade a { color: var(--highlight-yellow) !important; font-weight: bold; text-decoration: underline; }
+        .btn-warning-custom { background-color: var(--highlight-yellow); border-color: var(--highlight-yellow); color: #212529; font-weight: bold; }
+        .btn-warning-custom:hover { background-color: #e0a800; border-color: #d39e00; color: #212529; }
+
+        /* Estilos específicos para a página de treinos */
+        .workout-option-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 8px var(--dark-shadow-color);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Empurra o botão para baixo */
+            height: 100%; /* Garante que os cards tenham a mesma altura */
+        }
+        .workout-option-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 10px;
+        }
+        .workout-option-card ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+            color: var(--dark-muted-text);
+        }
+        .workout-option-card ul li {
+            margin-bottom: 5px;
+        }
+        .workout-option-card .btn {
+            width: 100%;
+            margin-top: auto; /* Empurra o botão para o final */
+        }
+
+        .view-limit-card {
+            background-color: rgba(220, 53, 69, 0.1); /* Vermelho suave */
+            border: 1px solid var(--highlight-red);
+            color: var(--highlight-red);
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .view-limit-card h4 {
+            color: var(--highlight-red);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="dashboard_gratuito.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="dashboard_gratuito.html">
+                <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-person-fill"></i> Meu Perfil <span class="badge bg-warning text-dark">Básico</span>
+            </a>
+            <a class="nav-link active" aria-current="page" href="meus_treinos_gratis.html">
+                <i class="bi bi-lightning-fill"></i> Meus Treinos <span class="badge bg-warning text-dark">Limitado</span>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-clipboard-data-fill"></i> Progresso <span class="badge bg-warning text-dark">Limitado</span>
+            </a>
+            <a class="nav-link feature-premium-link" href="planos.html">
+                <i class="bi bi-egg-fill"></i> Nutrição <i class="bi bi-lock-fill ms-auto"></i>
+            </a>
+            <a class="nav-link feature-premium-link" href="planos.html">
+                <i class="bi bi-bell-fill"></i> Notificações <i class="bi bi-lock-fill ms-auto"></i>
+            </a>
+            <a class="nav-link" href="artigos_gratis.html">
+                <i class="bi bi-newspaper"></i> Artigos <span class="badge bg-warning text-dark">5/dia</span>
+            </a>
+            <a class="nav-link feature-premium-link" href="planos.html">
+                <i class="bi bi-star-fill text-warning"></i> Upgrade Premium <i class="bi bi-arrow-right-circle-fill ms-auto"></i>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content" id="mainContent">
+        <h1 class="mb-4 fw-bold">Meus Treinos (Limitado)</h1>
+        <p class="lead text-muted mb-4">Escolha um dos treinos básicos disponíveis. Para acesso ilimitado e treinos personalizados, faça upgrade!</p>
+
+        <div class="alert-upgrade text-center mb-5">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <div>
+                <p class="mb-1">Treinos personalizados e avançados estão esperando por você no Plano Premium!</p>
+                <a href="planos.html" class="mt-2 d-inline-block btn btn-warning-custom">Desbloquear Todos os Treinos <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="workout-option-card">
+                    <h5>Treino de Força - Hipertrofia</h5>
+                    <p class="text-muted">Focado em ganho de massa muscular.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Rotina A/B</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> 30-45 minutos</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Exercícios compostos</li>
+                    </ul>
+                    <a href="#" class="btn btn-dashboard">Iniciar Treino Hipertrofia</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="workout-option-card">
+                    <h5>Treino de Força - Básico</h5>
+                    <p class="text-muted">Construa sua base de força e resistência.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Corpo inteiro</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> 20-30 minutos</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Foco em movimentos</li>
+                    </ul>
+                    <a href="#" class="btn btn-dashboard">Iniciar Treino Força</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="workout-option-card">
+                    <h5>Treino Cardio - Emagrecimento</h5>
+                    <p class="text-muted">Sessão intensa para queima de calorias.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Treino HIIT leve</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> 20 minutos</li>
+                        <li><i class="bi bi-check-circle-fill text-success me-2"></i> Sem equipamentos</li>
+                    </ul>
+                    <a href="#" class="btn btn-dashboard">Iniciar Treino Emagrecimento</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-limit-card mt-5">
+            <h4><i class="bi bi-lock-fill me-2"></i> Acesso Limitado a Treinos</h4>
+            <p>Você tem acesso a 3 opções de treino gratuitas. Para desbloquear uma biblioteca completa de treinos personalizados, planos avançados e acompanhamento detalhado com personal trainers, considere nosso **Plano Premium**.</p>
+            <a href="planos.html" class="btn btn-warning-custom mt-3">Ver Planos Premium</a>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile (mantido do seu código)
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+
+            // Simulação de nome de usuário
+            const userNameElement = document.getElementById('user-name');
+            const storedUserName = localStorage.getItem('bh_user_name') || 'Usuário(a) Gratuito';
+            userNameElement.textContent = storedUserName;
+
+            // Lógica para lidar com cliques em recursos premium travados na sidebar (reutilizado)
+            document.querySelectorAll('.feature-premium-link').forEach(element => {
+                element.addEventListener('click', (event) => {
+                    event.preventDefault(); 
+                    alert('Este é um recurso exclusivo do Plano Premium! Faça upgrade para ter acesso ilimitado.');
+                    window.location.href = 'planos.html';
+                });
+            });
+
+            // Simulação de iniciar treinos
+            document.querySelectorAll('.workout-option-card .btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const workoutTitle = button.closest('.workout-option-card').querySelector('h5').textContent;
+                    alert(`Iniciando o treino: "${workoutTitle}"!\n(Em um app real, o treino começaria aqui.)`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
