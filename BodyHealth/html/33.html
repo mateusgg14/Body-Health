@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Gratuito - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Cores para o tema escuro - Consistente em todo o site */
+            --dark-bg: #1a1a1a; /* Fundo principal muito escuro */
+            --dark-card-bg: #2b2b2b; /* Fundo dos cards e sidebar */
+            --dark-text-color: #e0e0e0; /* Cor de texto padrão clara (quase branca) */
+            --dark-muted-text: #b0b0b0; /* Texto muted mais claro */
+            --dark-border-color: #444444; /* Bordas mais escuras */
+            --dark-shadow-color: rgba(0,0,0,0.5); /* Sombra mais intensa */
+            --highlight-yellow: #ffc107; /* Amarelo de destaque */
+            --highlight-green: #28a745; /* Verde para checks */
+            --highlight-red: #dc3545; /* Vermelho para X */
+            --sidebar-width: 250px; /* Largura da sidebar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex; /* Para layout de sidebar e conteúdo */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0; /* Não permite que a sidebar encolha */
+            transition: transform 0.3s ease-in-out; /* Animação de esconder/mostrar */
+            position: fixed; /* Fixa a sidebar na tela */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030; /* Acima do conteúdo principal, mas abaixo do navbar toggle */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Esconder sidebar em mobile por padrão */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important; /* Em mobile, conteúdo não tem margem */
+            }
+            .navbar-toggler-sidebar {
+                display: block !important; /* Mostra o botão de toggle da sidebar */
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1040; /* Acima da sidebar */
+                color: var(--dark-text-color);
+                border: 1px solid var(--dark-border-color);
+                background-color: var(--dark-card-bg);
+            }
+        }
+
+        /* Overlay para mobile quando sidebar está aberta */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1029; /* Abaixo da sidebar */
+        }
+        .sidebar.show + .overlay {
+            display: block;
+        }
+
+        .sidebar .navbar-brand-app {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .navbar-brand-app img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link {
+            color: var(--dark-text-color);
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--highlight-yellow);
+            color: #212529; /* Texto escuro no link ativo */
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .nav-link .badge {
+            margin-left: auto; /* Alinha o badge à direita */
+        }
+        .sidebar .logout-link {
+            margin-top: auto; /* Empurra o logout para o final da sidebar */
+            border-top: 1px solid var(--dark-border-color);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            margin-left: var(--sidebar-width); /* Espaço para a sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0; /* Em mobile, não há margem fixa */
+            }
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+        .dashboard-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+            min-height: 180px; /* Altura mínima para cards */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .dashboard-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(var(--highlight-green) var(--progress), var(--dark-border-color) var(--progress));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px auto;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            border: 3px solid var(--dark-border-color);
+        }
+        .small-icon-text {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            color: var(--dark-muted-text);
+        }
+        .small-icon-text i {
+            margin-right: 8px;
+            color: var(--highlight-yellow);
+        }
+        .btn-dashboard {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-dashboard:hover {
+            background-color: #e6b000;
+            color: #212529;
+        }
+
+        /* ESTILOS ESPECÍFICOS PARA RECURSOS PREMIUM (NA VERSÃO GRATUITA) */
+        .feature-premium-locked {
+            opacity: 0.5; /* Deixa o card semi-transparente */
+            cursor: not-allowed;
+            position: relative;
+            pointer-events: none; /* Desabilita cliques em elementos internos */
+        }
+
+        .feature-premium-locked::after {
+            content: "Recurso Premium";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--highlight-yellow);
+            border-radius: 8px;
+            text-align: center;
+            padding: 20px;
+        }
+        .feature-premium-locked .btn,
+        .feature-premium-locked a.btn { /* Esconde o botão dentro do card premium */
+            display: none;
+        }
+
+        .alert-upgrade {
+            background-color: rgba(255, 193, 7, 0.1); /* Amarelo bem suave */
+            border-color: var(--highlight-yellow);
+            color: var(--highlight-yellow);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Centraliza o conteúdo */
+            text-align: center;
+        }
+        .alert-upgrade i {
+            font-size: 1.8rem;
+            margin-right: 15px;
+        }
+        .alert-upgrade p {
+            margin-bottom: 0;
+        }
+        .alert-upgrade a {
+            color: var(--highlight-yellow) !important;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .btn-warning-custom { /* Adicionado para o botão no alert-upgrade */
+            background-color: var(--highlight-yellow);
+            border-color: var(--highlight-yellow);
+            color: #212529; /* Cor do texto para contraste com o amarelo */
+            font-weight: bold;
+        }
+        .btn-warning-custom:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+            color: #212529;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="dashboard_gratuito.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Body Health
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link active" aria-current="page" href="dashboard_gratuito.html">
+                <i class="bi bi-house-door-fill"></i> Dashboard
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-person-fill"></i> Meu Perfil <span class="badge bg-warning text-dark">Básico</span>
+            </a>
+            <a class="nav-link" href="meus_treinos_gratis.html">
+                <i class="bi bi-lightning-fill"></i> Meus Treinos <span class="badge bg-warning text-dark">Limitado</span>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-clipboard-data-fill"></i> Progresso <span class="badge bg-warning text-dark">Limitado</span>
+            </a>
+            <a class="nav-link feature-premium-link" href="planos.html">
+                <i class="bi bi-egg-fill"></i> Nutrição <i class="bi bi-lock-fill ms-auto"></i>
+            </a>
+            <a class="nav-link feature-premium-link" href="planos.html">
+                <i class="bi bi-bell-fill"></i> Notificações <i class="bi bi-lock-fill ms-auto"></i>
+            </a>
+            <a class="nav-link" href="artigos_gratis.html">
+                <i class="bi bi-newspaper"></i> Artigos <span class="badge bg-warning text-dark">5/dia</span>
+            </a>
+            <a class="nav-link feature-premium-link" href="planos.html">
+                <i class="bi bi-star-fill text-warning"></i> Upgrade Premium <i class="bi bi-arrow-right-circle-fill ms-auto"></i>
+            </a>
+            <a class="nav-link" href="#">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content" id="mainContent">
+        <h1 class="mb-4 fw-bold">Olá, <span id="user-name">Usuário(a) Gratuito</span>!</h1>
+        <p class="text-center lead text-muted mb-5">Seu caminho para a saúde começa aqui. Explore!</p>
+
+        <div class="alert-upgrade text-center mb-5">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <div>
+                <p class="mb-1">Desbloqueie **todos** os treinos, nutricionistas e acompanhamento completo!</p>
+                <p class="mb-0">Seu potencial ilimitado está a um clique de distância.</p>
+                <a href="planos.html" class="mt-2 d-inline-block btn btn-warning-custom">Faça Upgrade para Premium <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card text-center">
+                    <h5>Seu Progresso Semanal</h5>
+                    <div class="progress-circle" style="--progress: 40%;">
+                        40%
+                    </div>
+                    <p class="mt-3 text-muted">Acompanhe seu progresso básico. Mais detalhes no Premium!</p>
+                    <a href="#" class="btn btn-dashboard btn-sm mt-3">Ver Detalhes</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card">
+                    <h5>Treino Rápido do Dia</h5>
+                    <p class="mb-2"><strong>Aquecimento e Alongamento</strong></p>
+                    <div class="small-icon-text"><i class="bi bi-clock"></i> 15 minutos</div>
+                    <div class="small-icon-text"><i class="bi bi-bar-chart-line"></i> Fácil para iniciantes</div>
+                    <a href="meus_treinos_gratis.html" class="btn btn-dashboard mt-3">Ver Treinos Completos</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="dashboard-card">
+                    <h5>Metas de Saúde Básicas</h5>
+                    <div class="small-icon-text"><i class="bi bi-water"></i> Beba 2L de água hoje</div>
+                    <p class="text-muted mt-3">Defina metas avançadas no Plano Premium.</p>
+                    <a href="#" class="btn btn-dashboard mt-3">Gerenciar Metas</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="dashboard-card">
+                    <h5>Dica do Dia!</h5>
+                    <p class="mb-2"><strong>"5 Benefícios da Caminhada Diária"</strong></p>
+                    <div class="small-icon-text"><i class="bi bi-journal-text"></i> Leitura Rápida</div>
+                    <p class="text-muted mt-3">Aprenda mais sobre saúde e bem-estar. Limite de 5 artigos/dia.</p>
+                    <a href="artigos_gratis.html" class="btn btn-dashboard mt-3">Ver Mais Artigos</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="dashboard-card text-center">
+                    <h5>Desbloqueie seu Potencial!</h5>
+                    <p class="lead text-white">Tenha acesso ilimitado a:</p>
+                    <ul class="list-unstyled text-start mx-auto" style="max-width: 250px;">
+                        <li class="small-icon-text"><i class="bi bi-check-circle-fill text-success"></i> Treinos Personalizados</li>
+                        <li class="small-icon-text"><i class="bi bi-check-circle-fill text-success"></i> Planos Nutricionais</li>
+                        <li class="small-icon-text"><i class="bi bi-check-circle-fill text-success"></i> Acompanhamento Completo</li>
+                    </ul>
+                    <a href="planos.html" class="btn btn-dashboard mt-3 btn-warning-custom">Faça Upgrade Agora!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile (mantido do seu código)
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+
+            // Simulação de nome de usuário (em um app real, viria do backend)
+            const userNameElement = document.getElementById('user-name');
+            const storedUserName = localStorage.getItem('bh_user_name') || 'Usuário(a) Gratuito';
+            userNameElement.textContent = storedUserName;
+
+            // Lógica para lidar com cliques em recursos premium travados
+            document.querySelectorAll('.feature-premium-link').forEach(element => {
+                element.addEventListener('click', (event) => {
+                    // Previne a ação padrão para os links da sidebar
+                    event.preventDefault(); 
+                    alert('Este é um recurso exclusivo do Plano Premium! Faça upgrade para ter acesso ilimitado.');
+                    window.location.href = 'planos.html'; // Redireciona para a página de planos
+                });
+            });
+
+            // Lógica para lidar com cliques em cards feature-premium-locked
+            document.querySelectorAll('.dashboard-card.feature-premium-locked').forEach(card => {
+                card.addEventListener('click', (event) => {
+                    event.preventDefault(); // Impede qualquer ação padrão do clique
+                    alert('Este é um recurso exclusivo do Plano Premium! Faça upgrade para ter acesso ilimitado.');
+                    window.location.href = 'planos.html'; // Redireciona para a página de planos
+                });
+            });
+
+            // Adicionar funcionalidades básicas aos botões gratuitos (simulação)
+            document.querySelector('.dashboard-card:has(h5:contains("Seu Progresso Semanal")) .btn').addEventListener('click', () => {
+                alert('Acessando detalhes de Progresso Semanal Básico!');
+                // Aqui você pode redirecionar para uma página de progresso gratuita se houver.
+            });
+            document.querySelector('.dashboard-card:has(h5:contains("Metas de Saúde Básicas")) .btn').addEventListener('click', () => {
+                alert('Gerenciando Metas de Saúde Básicas!');
+                // Aqui você pode redirecionar para uma página de metas gratuita se houver.
+            });
+        });
+    </script>
+</body>
+</html>

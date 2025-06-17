@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Nutricionista - Body Health App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* COPIE E COLE AQUI TODO O CONTEÚDO DO SEU BLOCO <style> DA personal_dashboard.html */
+        :root {
+            /* Cores para o tema escuro - Consistente em todo o site */
+            --dark-bg: #1a1a1a; /* Fundo principal muito escuro */
+            --dark-card-bg: #2b2b2b; /* Fundo dos cards e sidebar */
+            --dark-text-color: #e0e0e0; /* Cor de texto padrão clara (quase branca) */
+            --dark-muted-text: #b0b0b0; /* Texto muted mais claro */
+            --dark-border-color: #444444; /* Bordas mais escuras */
+            --dark-shadow-color: rgba(0,0,0,0.5); /* Sombra mais intensa */
+            --highlight-yellow: #ffc107; /* Amarelo de destaque */
+            --highlight-green: #28a745; /* Verde para checks */
+            --highlight-red: #dc3545; /* Vermelho para X */
+            --sidebar-width: 250px; /* Largura da sidebar */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex; /* Para layout de sidebar e conteúdo */
+            min-height: 100vh; /* Ocupa a altura total da viewport */
+            overflow-x: hidden; /* Evita scroll horizontal em mobile com sidebar */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-card-bg);
+            padding: 20px;
+            box-shadow: 2px 0 10px var(--dark-shadow-color);
+            flex-shrink: 0; /* Não permite que a sidebar encolha */
+            transition: transform 0.3s ease-in-out; /* Animação de esconder/mostrar */
+            position: fixed; /* Fixa a sidebar na tela */
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1030; /* Acima do conteúdo principal, mas abaixo do navbar toggle */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Esconder sidebar em mobile por padrão */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important; /* Em mobile, conteúdo não tem margem */
+            }
+            .navbar-toggler-sidebar {
+                display: block !important; /* Mostra o botão de toggle da sidebar */
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1040; /* Acima da sidebar */
+                color: var(--dark-text-color);
+                border: 1px solid var(--dark-border-color);
+                background-color: var(--dark-card-bg);
+            }
+        }
+
+        /* Overlay para mobile quando sidebar está aberta */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1029; /* Abaixo da sidebar */
+        }
+        .sidebar.show + .overlay {
+            display: block;
+        }
+
+
+        .sidebar .navbar-brand-app {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .navbar-brand-app img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .sidebar .nav-link {
+            color: var(--dark-text-color);
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--highlight-yellow);
+            color: #212529; /* Texto escuro no link ativo */
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        .sidebar .logout-link {
+            margin-top: auto; /* Empurra o logout para o final da sidebar */
+            border-top: 1px solid var(--dark-border-color);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            margin-left: var(--sidebar-width); /* Espaço para a sidebar */
+            padding: 30px;
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .main-content {
+                margin-left: 0; /* Em mobile, não há margem fixa */
+            }
+        }
+
+        h1, h2, h3, h4, h5 {
+            color: var(--dark-text-color);
+        }
+        .app-card {
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 10px var(--dark-shadow-color);
+            margin-bottom: 25px;
+        }
+        .app-card h5 {
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .btn-app {
+            background-color: var(--highlight-yellow);
+            color: #212529;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn-app:hover {
+            background-color: #e6b000;
+            color: #212529;
+        }
+        .icon-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #3b3b3b;
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+        .icon-card:hover {
+            transform: translateY(-5px);
+        }
+        .icon-card i {
+            font-size: 3rem;
+            color: var(--highlight-yellow);
+            margin-bottom: 15px;
+        }
+        .icon-card h6 {
+            color: var(--dark-text-color);
+            font-weight: bold;
+        }
+        .progress {
+            height: 10px;
+            background-color: #444;
+        }
+        .progress-bar {
+            background-color: var(--highlight-yellow);
+        }
+        .list-group-item {
+            background-color: transparent;
+            border-color: var(--dark-border-color);
+            color: var(--dark-text-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-group-item:first-child {
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .list-group-item:last-child {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .list-group-item strong {
+            color: var(--highlight-yellow);
+        }
+        .profile-image-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+        }
+        .text-success { color: var(--highlight-green) !important; }
+        .text-danger { color: var(--highlight-red) !important; }
+        .text-warning { color: var(--highlight-yellow) !important; }
+        .table-app {
+            color: var(--dark-text-color);
+            background-color: var(--dark-card-bg);
+            border-radius: 8px;
+            overflow: hidden; /* Garante que os cantos da tabela sejam arredondados */
+        }
+        .table-app thead {
+            background-color: #3a3a3a;
+            color: var(--highlight-yellow);
+        }
+        .table-app th, .table-app td {
+            border-color: var(--dark-border-color);
+            vertical-align: middle;
+            padding: 15px;
+        }
+        .table-app tbody tr:hover {
+            background-color: #353535;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="appSidebar">
+        <a class="navbar-brand-app" href="19.DashboardNutricionista.html">
+            <img src="DeWatermark.ai_1747155996253.png" alt="Body Health Logo"> Nutricionista
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link active" aria-current="page" href="19.DashboardNutricionista.html">
+                <i class="bi bi-bar-chart-fill"></i> Dashboard
+            </a>
+            <a class="nav-link" href="20.NutricionistaPacientes.html">
+                <i class="bi bi-people-fill"></i> Meus Pacientes
+            </a>
+            <a class="nav-link" href="21.GerenciarDietasNutricionista.html">
+                <i class="bi bi-egg-fried"></i> Gerenciar Dietas
+            </a>
+            <a class="nav-link" href="22.MensagensNutricionista.html">
+                <i class="bi bi-chat-dots-fill"></i> Mensagens
+            </a>
+            <a class="nav-link" href="23.ConfiguracoesNutricionista.html">
+                <i class="bi bi-gear-fill"></i> Configurações
+            </a>
+        </nav>
+        <div class="logout-link">
+            <a class="nav-link text-danger" href="/html/Inicio/2.Login.html">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </div>
+
+    <div class="overlay" id="sidebarOverlay"></div>
+
+    <button class="btn btn-sm navbar-toggler-sidebar d-lg-none" type="button" id="sidebarToggle">
+        <span class="bi bi-list"></span>
+    </button>
+
+    <div class="main-content">
+        <h1 class="mb-4 fw-bold">Dashboard da Nutricionista</h1>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="icon-card">
+                    <i class="bi bi-person-fill"></i>
+                    <h6>Total de Pacientes</h6>
+                    <h2 class="text-warning">25</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="icon-card">
+                    <i class="bi bi-calendar-check-fill"></i>
+                    <h6>Consultas Agendadas</h6>
+                    <h2 class="text-success">5</h2>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="icon-card">
+                    <i class="bi bi-chat-text-fill"></i>
+                    <h6>Mensagens Não Lidas</h6>
+                    <h2 class="text-info">2</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <h5>Pacientes com Mais Progresso (Último Mês)</h5>
+            <div class="table-responsive">
+                <table class="table table-app table-hover">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Meta</th>
+                            <th>Progresso (%)</th>
+                            <th>Última Consulta</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img src="https://via.placeholder.com/30/ffc107/FFFFFF?text=JP" alt="João Paulo" class="profile-image-sm"> João Paulo</td>
+                            <td>Perda de Peso (5kg)</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 80%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">80%</div>
+                                </div>
+                            </td>
+                            <td>05/06/2025</td>
+                        </tr>
+                        <tr>
+                            <td><img src="https://via.placeholder.com/30/ffc107/FFFFFF?text=AL" alt="Ana Luiza" class="profile-image-sm"> Ana Luiza</td>
+                            <td>Ganho de Massa (3kg)</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 65%;" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
+                                </div>
+                            </td>
+                            <td>08/06/2025</td>
+                        </tr>
+                        <tr>
+                            <td><img src="https://via.placeholder.com/30/ffc107/FFFFFF?text=RF" alt="Ricardo Fernandes" class="profile-image-sm"> Ricardo Fernandes</td>
+                            <td>Reeducação Alimentar</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: 90%;" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">90%</div>
+                                </div>
+                            </td>
+                            <td>12/06/2025</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-app mt-3">Ver Todos os Pacientes</button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="app-card">
+                    <h5>Próximas Consultas</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div>
+                                <strong>João Paulo</strong>
+                                <small class="d-block text-muted">Amanhã, 10:00 AM</small>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-warning"></i>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <strong>Mariana Castro</strong>
+                                <small class="d-block text-muted">Quinta-feira, 14:30 PM</small>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-warning"></i>
+                        </li>
+                        <li class="list-group-item">
+                            <div>
+                                <strong>Felipe Diniz</strong>
+                                <small class="d-block text-muted">Sexta-feira, 09:00 AM</small>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-warning"></i>
+                        </li>
+                    </ul>
+                    <button class="btn btn-outline-warning mt-3">Ver Calendário Completo</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="app-card">
+                    <h5>Alertas e Pendências</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item text-warning">
+                            <div>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <strong>2 Novas Mensagens Não Lidas</strong>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-warning"></i>
+                        </li>
+                        <li class="list-group-item text-info">
+                            <div>
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>1 Paciente aguardando aprovação de dieta</strong>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-warning"></i>
+                        </li>
+                        <li class="list-group-item text-danger">
+                            <div>
+                                <i class="bi bi-calendar-x-fill me-2"></i>
+                                <strong>1 Consulta cancelada</strong>
+                                <small class="d-block text-muted">Mariana Souza (Hoje)</small>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill text-warning"></i>
+                        </li>
+                    </ul>
+                    <button class="btn btn-outline-warning mt-3">Ver Todos os Alertas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // JavaScript para o toggle da sidebar em mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('appSidebar');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    overlay.classList.toggle('show');
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                });
+            }
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 992) {
+                    sidebar.classList.remove('show');
+                    overlay.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
